@@ -65,7 +65,9 @@ func main() {
 
 	for {
 		r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: strings.Repeat("*", rand.Intn(65536))})
-		if err == nil {
+		if err != nil {
+			log.Printf("Failed to send request: %v", err)
+		} else {
 			log.Printf("Greeting: %s", r.Message)
 		}
 		time.Sleep(1 * time.Second)
