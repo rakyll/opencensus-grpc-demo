@@ -14,7 +14,13 @@ final class GrpcViews {
           RpcViewConstants.RPC_CLIENT_REQUEST_BYTES_VIEW,
           RpcViewConstants.RPC_CLIENT_RESPONSE_BYTES_VIEW,
           RpcViewConstants.RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_VIEW,
-          RpcViewConstants.RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_VIEW);
+          RpcViewConstants.RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_VIEW,
+          RpcViewConstants.RPC_SERVER_ERROR_COUNT_VIEW,
+          RpcViewConstants.RPC_SERVER_SERVER_LATENCY_VIEW,
+          RpcViewConstants.RPC_SERVER_REQUEST_BYTES_VIEW,
+          RpcViewConstants.RPC_SERVER_RESPONSE_BYTES_VIEW,
+          RpcViewConstants.RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_VIEW,
+          RpcViewConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_VIEW);
 
   static void registerViews() {
     for (View view : RPC_VIEW_SET) {
