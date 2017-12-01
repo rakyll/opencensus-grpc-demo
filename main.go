@@ -55,12 +55,18 @@ func main() {
 	if len(os.Args) > 1 {
 		name = os.Args[1]
 	}
-	r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: name})
-	if err != nil {
-		log.Printf("Failed to greet: %v", err)
-	} else {
-		log.Printf("Greeting: %s", r.Message)
-	}
+
+	go func() {
+		for {
+			r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: name})
+			if err != nil {
+				log.Printf("Failed to greet: %v", err)
+			} else {
+				log.Printf("Greeting: %s", r.Message)
+			}
+			time.Sleep(100 * time.Millisecond)
+		}
+	}()
 
 	http.Handle("/metrics", promExporter)
 	log.Fatal(http.ListenAndServe(":9999", nil))
