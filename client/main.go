@@ -1,4 +1,4 @@
-// Package main contains a demo gRPC Go client
+// Package client contains a demo gRPC Go client
 // with OpenCensus enabled to collect metrics and
 // report traces for the outgoing RPCs.
 package main
@@ -6,17 +6,21 @@ package main
 import (
 	"context"
 	"log"
+	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 
 	"google.golang.org/grpc"
 
-	"go.opencensus.io/exporter/stats/prometheus"
-	"go.opencensus.io/exporter/trace/stackdriver"
 	ocgrpc "go.opencensus.io/plugin/grpc"
 	"go.opencensus.io/plugin/grpc/grpcstats"
 	"go.opencensus.io/stats"
 	"go.opencensus.io/trace"
+
+	"go.opencensus.io/exporter/stats/prometheus"
+	sstackdriver "go.opencensus.io/exporter/stats/stackdriver"
+	tstackdriver "go.opencensus.io/exporter/trace/stackdriver"
 
 	pb "go.opencensus.io/examples/grpc/proto"
 )
@@ -27,6 +31,12 @@ func main() {
 	pe, se := exporters()
 	stats.RegisterExporter(pe)
 	trace.RegisterExporter(se)
+
+	go func() {
+		// Serve the proometheus metrics endpoint at localhost:9999.
+		http.Handle("/metrics", pe)
+		log.Fatal(http.ListenAndServe(":9999", nil))
+	}()
 
 	// Subscribe to collect client request count as a distribution
 	// and the count of the errored RPCs.
@@ -53,32 +63,37 @@ func main() {
 	defer conn.Close()
 	c := pb.NewGreeterClient(conn)
 
-	go func() {
-		for {
-			r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: "kubecon"})
-			if err == nil {
-				log.Printf("Greeting: %s", r.Message)
-			}
-			time.Sleep(5 * time.Second)
+	for {
+		r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: strings.Repeat("*", rand.Intn(65536))})
+		if err == nil {
+			log.Printf("Greeting: %s", r.Message)
 		}
-	}()
-
-	http.Handle("/metrics", pe)
-	log.Fatal(http.ListenAndServe(":9999", nil))
+		time.Sleep(1 * time.Second)
+	}
 }
 
-func exporters() (*prometheus.Exporter, *stackdriver.Exporter) {
+func exporters() (*prometheus.Exporter, *tstackdriver.Exporter) {
 	pe, err := prometheus.NewExporter(prometheus.Options{
 		Namespace: "kubecon_demo",
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	se, err := stackdriver.NewExporter(stackdriver.Options{
+	se, err := tstackdriver.NewExporter(tstackdriver.Options{
 		ProjectID: "jbdtalks",
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
 	return pe, se
+}
+
+func stackdriverMonitoringExporter() *sstackdriver.Exporter {
+	se, err := sstackdriver.NewExporter(sstackdriver.Options{
+		ProjectID: "jbdtalks",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return se
 }
