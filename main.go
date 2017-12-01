@@ -62,24 +62,11 @@ func main() {
 
 	go func() {
 		for {
-			go func() {
-				for i := 0; i < 100; i++ {
-					r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: name})
-					if err != nil {
-						// log.Printf("Failed to greet: %v", err)
-					} else {
-						log.Printf("Greeting: %s", r.Message)
-					}
-				}
-			}()
-			time.Sleep(time.Second)
-		}
-	}()
-
-	go func() {
-		for {
-			se.Flush()
-			time.Sleep(time.Second)
+			r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: name})
+			if err == nil {
+				log.Printf("Greeting: %s", r.Message)
+			}
+			time.Sleep(5 * time.Second)
 		}
 	}()
 
