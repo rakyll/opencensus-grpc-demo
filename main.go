@@ -13,9 +13,11 @@ import (
 	"google.golang.org/grpc"
 
 	"go.opencensus.io/exporter/stats/prometheus"
+	"go.opencensus.io/exporter/trace/stackdriver"
 	ocgrpc "go.opencensus.io/plugin/grpc"
 	"go.opencensus.io/plugin/grpc/grpcstats"
 	"go.opencensus.io/stats"
+	"go.opencensus.io/trace"
 
 	pb "go.opencensus.io/examples/grpc/proto"
 )
@@ -23,12 +25,13 @@ import (
 const address = "localhost:50051"
 
 func main() {
-	promExporter := exporters()
-	stats.RegisterExporter(promExporter)
+	pe, se := exporters()
+	stats.RegisterExporter(pe)
+	trace.RegisterExporter(se)
 
 	// Subscribe to collect client request count as a distribution
 	// and the count of the errored RPCs.
-	if err := grpcstats.RPCClientRequestCountView.Subscribe(); err != nil {
+	if err := grpcstats.RPCClientRoundTripLatencyView.Subscribe(); err != nil {
 		log.Fatal(err)
 	}
 	if err := grpcstats.RPCClientErrorCountView.Subscribe(); err != nil {
@@ -36,6 +39,7 @@ func main() {
 	}
 
 	stats.SetReportingPeriod(time.Second)
+	trace.SetDefaultSampler(trace.AlwaysSample()) // for the demo
 
 	// Set up a connection to the server with the OpenCensus
 	// stats handler to enable stats and tracing.
@@ -58,26 +62,43 @@ func main() {
 
 	go func() {
 		for {
-			r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: name})
-			if err != nil {
-				log.Printf("Failed to greet: %v", err)
-			} else {
-				log.Printf("Greeting: %s", r.Message)
-			}
-			time.Sleep(100 * time.Millisecond)
+			go func() {
+				for i := 0; i < 100; i++ {
+					r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: name})
+					if err != nil {
+						// log.Printf("Failed to greet: %v", err)
+					} else {
+						log.Printf("Greeting: %s", r.Message)
+					}
+				}
+			}()
+			time.Sleep(time.Second)
 		}
 	}()
 
-	http.Handle("/metrics", promExporter)
+	go func() {
+		for {
+			se.Flush()
+			time.Sleep(time.Second)
+		}
+	}()
+
+	http.Handle("/metrics", pe)
 	log.Fatal(http.ListenAndServe(":9999", nil))
 }
 
-func exporters() *prometheus.Exporter {
-	promExporter, err := prometheus.NewExporter(prometheus.Options{
+func exporters() (*prometheus.Exporter, *stackdriver.Exporter) {
+	pe, err := prometheus.NewExporter(prometheus.Options{
 		Namespace: "kubecon_demo",
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	return promExporter
+	se, err := stackdriver.NewExporter(stackdriver.Options{
+		ProjectID: "jbdtalks",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return pe, se
 }
