@@ -74,6 +74,7 @@ public class HelloWorldServer {
    * Main launches the server from the command line.
    */
   public static void main(String[] args) throws IOException, InterruptedException {
+    GrpcViews.registerViews();
     ZPageHandlers.startHttpServerAndRegisterAll(60002);
     StackdriverExporter.createAndRegisterWithProjectId("jbdtalks");
     StackdriverStatsExporter.createAndRegisterWithProjectId("jbdtalks", Duration.create

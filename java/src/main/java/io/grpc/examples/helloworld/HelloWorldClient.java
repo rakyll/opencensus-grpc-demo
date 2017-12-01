@@ -75,6 +75,7 @@ public class HelloWorldClient {
    * greeting.
    */
   public static void main(String[] args) throws Exception {
+    GrpcViews.registerViews();
     ZPageHandlers.startHttpServerAndRegisterAll(60001);
     StackdriverExporter.createAndRegisterWithProjectId("jbdtalks");
     StackdriverStatsExporter.createAndRegisterWithProjectId("jbdtalks", Duration.create(10, 0));
