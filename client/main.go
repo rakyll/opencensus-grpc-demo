@@ -43,7 +43,7 @@ func main() {
 	if err := grpcstats.RPCClientRoundTripLatencyView.Subscribe(); err != nil {
 		log.Fatal(err)
 	}
-	if err := grpcstats.RPCClientErrorCountView.Subscribe(); err != nil {
+	if err := grpcstats.RPCClientRequestBytesView.Subscribe(); err != nil {
 		log.Fatal(err)
 	}
 
