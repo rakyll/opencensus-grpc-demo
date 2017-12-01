@@ -7,7 +7,6 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"google.golang.org/grpc"
@@ -54,15 +53,9 @@ func main() {
 	defer conn.Close()
 	c := pb.NewGreeterClient(conn)
 
-	// Contact the server and print out its response.
-	name := "kubecon"
-	if len(os.Args) > 1 {
-		name = os.Args[1]
-	}
-
 	go func() {
 		for {
-			r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: name})
+			r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: "kubecon"})
 			if err == nil {
 				log.Printf("Greeting: %s", r.Message)
 			}
