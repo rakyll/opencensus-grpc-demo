@@ -19,7 +19,6 @@ import (
 	"go.opencensus.io/trace"
 
 	"go.opencensus.io/exporter/stats/prometheus"
-	sstackdriver "go.opencensus.io/exporter/stats/stackdriver"
 	tstackdriver "go.opencensus.io/exporter/trace/stackdriver"
 
 	pb "go.opencensus.io/examples/grpc/proto"
@@ -88,14 +87,4 @@ func exporters() (*prometheus.Exporter, *tstackdriver.Exporter) {
 		log.Fatal(err)
 	}
 	return pe, se
-}
-
-func stackdriverMonitoringExporter() *sstackdriver.Exporter {
-	se, err := sstackdriver.NewExporter(sstackdriver.Options{
-		ProjectID: "jbdtalks",
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	return se
 }
