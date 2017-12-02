@@ -1,0 +1,1 @@
+mvn exec:java -Dexec.mainClass=io.grpc.examples.helloworld.HelloWorldServer
