@@ -50,6 +50,14 @@ You can see the exported distribution of latency with grpc method and
 grpc service labels.
 
 I will switch to the Prometheus UI. You can see that :9999/metrics target is
-up and has been scraped. We are retrieving 
+up and has been scraped. We should be retrieving some metrics.
+
+![stats](https://i.imgur.com/JpLy8E0.png)
+
+
+See `kubecon_demo_grpc_io_client_request_bytes_cum_bucket` for the current
+request size distribution.
+
+See the rate of each bucket 
 
 To be continued...
