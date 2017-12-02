@@ -46,8 +46,7 @@ Now, the client is tracing all the outgoing requests and collecting
 stats from the outgoing RPCs. Let's see the Prometheus [metrics](http://localhost:9999/metrics)
 endpoint to see the exported metrics.
 
-You can see the exported distribution of latency with grpc method and
-grpc service labels.
+You can see the exported distribution of latency with grpc method and grpc service labels.
 
 ![s](https://i.imgur.com/bkaP7an.png)
 
@@ -60,16 +59,38 @@ up and has been scraped. We should be retrieving some metrics.
 See `kubecon_demo_grpc_io_client_request_bytes_cum_bucket` for the current
 request size distribution.
 
-See the rate of each bucket in the past 5 minutes:
+See the rate of each bucket from the past 5 minutes:
+
+See the 50th percentile:
 
 ```
-rate(kubecon_demo_grpc_io_client_request_bytes_cumulative_bucket[5m])
+histogram_quantile(0.5, rate(kubecon_demo_grpc_io_client_request_bytes_cumulative_bucket[5m]))
 ```
 
-See the 90th percentile:
+And 70th:
+
+```
+histogram_quantile(0.7, rate(kubecon_demo_grpc_io_client_request_bytes_cumulative_bucket[5m]))
+```
+
+And 90th:
 
 ```
 histogram_quantile(0.9, rate(kubecon_demo_grpc_io_client_request_bytes_cumulative_bucket[5m]))
+```
+
+We are also collecting the roundtrip latency, you can see the distribution as well.
+
+![latency](https://i.imgur.com/LEqtb3d.png)
+
+Metrics will be collected with the labels from the context
+and grpc_service and grpc_method will be automatically added.
+
+You can filter the metrics coming from the "SayHello" service by
+filtering by the label:
+
+```
+kubecon_demo_grpc_io_client_roundtrip_latency_cumulative_bucket{grpc_service="SayHello"}
 ```
 
 To be continued...
