@@ -33,7 +33,7 @@ Tracing exporter for the traces.
 We need to register the Prometheus metrics handler so it can
 scrap and read the metrics we collected.
 
-I am subscribing to some views, so the library collects,
+I am subscribing to some views; so the library collects,
 aggregates and exports them.
 
 Let's run the gRPC Go client:
@@ -49,6 +49,8 @@ endpoint to see the exported metrics.
 You can see the exported distribution of latency with grpc method and
 grpc service labels.
 
+![s](https://i.imgur.com/bkaP7an.png)
+
 I will switch to the Prometheus UI. You can see that :9999/metrics target is
 up and has been scraped. We should be retrieving some metrics.
 
@@ -58,6 +60,16 @@ up and has been scraped. We should be retrieving some metrics.
 See `kubecon_demo_grpc_io_client_request_bytes_cum_bucket` for the current
 request size distribution.
 
-See the rate of each bucket 
+See the rate of each bucket in the past 5 minutes:
+
+```
+rate(kubecon_demo_grpc_io_client_request_bytes_cumulative_bucket[5m])
+```
+
+See the 90th percentile:
+
+```
+histogram_quantile(0.9, rate(kubecon_demo_grpc_io_client_request_bytes_cumulative_bucket[5m]))
+```
 
 To be continued...
