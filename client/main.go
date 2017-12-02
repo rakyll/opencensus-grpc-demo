@@ -24,7 +24,7 @@ import (
 	pb "go.opencensus.io/examples/grpc/proto"
 )
 
-const address = "100.118.185.195:50051"
+const address = "localhost:50051"
 
 func main() {
 	pe, se := exporters()
