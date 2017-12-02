@@ -32,7 +32,7 @@ func main() {
 	trace.RegisterExporter(se)
 
 	go func() {
-		// Serve the proometheus metrics endpoint at localhost:9998.
+		// Serve the prometheus metrics endpoint at localhost:9998.
 		http.Handle("/metrics", pe)
 		log.Fatal(http.ListenAndServe(":9998", nil))
 	}()
