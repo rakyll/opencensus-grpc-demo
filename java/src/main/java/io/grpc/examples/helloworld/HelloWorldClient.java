@@ -57,10 +57,14 @@ public class HelloWorldClient {
   }
 
   /** Say hello to server. */
-  public void greet(String name) {
+  public void greet(String name) throws java.lang.InterruptedException {
     logger.info("Will try to greet " + name + " ...");
     HelloRequest request = HelloRequest.newBuilder().setName(name).build();
     HelloReply response;
+
+    // Simulate latency.
+    Thread.sleep(50);
+
     try {
       response = blockingStub.sayHello(request);
     } catch (StatusRuntimeException e) {
