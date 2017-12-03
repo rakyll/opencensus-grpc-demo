@@ -25,7 +25,7 @@ $ ./startserver.sh
 
 Now the server is listening... Time to start sending some RPCs.
 
-Let's take a look at the client first, client/main.go.
+Let's take a look at the client first, see client/main.go source code.
 
 You can see we set a Prometheus exporter for stats and a Stackdriver
 Tracing exporter for the traces.
@@ -59,8 +59,6 @@ up and has been scraped. We should be retrieving some metrics.
 See `kubecon_demo_grpc_io_client_request_bytes_cum_bucket` for the current
 request size distribution.
 
-See the rate of each bucket from the past 5 minutes:
-
 See the 50th percentile:
 
 ```
@@ -93,4 +91,28 @@ filtering by the label:
 kubecon_demo_grpc_io_client_roundtrip_latency_cumulative_bucket{grpc_service="SayHello"}
 ```
 
-To be continued...
+Talking about latency, we have a multi service system here.
+Let's a take a look at the traces we collected to have more granular
+understanding of the cause of latency.
+
+Both gRPC client and server uploads the collected traces to the Stackdriver
+Trace service. In the Google Cloud Console, we already can see some traces:
+
+![traces](https://i.imgur.com/MB8dRki.png)
+
+You see the both parts of the RPC call. Sent part is the outgoing
+RPC call from the client that too 3ms in total. It took 1 ms for the
+server to handle the request and respond, then it takes another 1ms
+for the client to handle the response.
+
+You can also generate reports and analysis from the collected traces and compare them.
+
+![report](https://i.imgur.com/ip0LZ4G.png)
+
+The 95th percentile is 4ms.
+
+TODO: Stackdriver Monitoring from the server.
+
+One more thing...
+
+TODO: /tracez
