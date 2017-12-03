@@ -39,11 +39,14 @@ func main() {
 
 	// Subscribe to collect client request count as a distribution
 	// and the count of the errored RPCs.
-	if err := grpcstats.RPCClientRoundTripLatencyView.Subscribe(); err != nil {
-		log.Fatal(err)
+	views := []*stats.View{
+		grpcstats.RPCClientRoundTripLatencyView,
+		grpcstats.RPCClientRequestBytesView,
 	}
-	if err := grpcstats.RPCClientRequestBytesView.Subscribe(); err != nil {
-		log.Fatal(err)
+	for _, v := range views {
+		if err := v.Subscribe(); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	stats.SetReportingPeriod(time.Second)
