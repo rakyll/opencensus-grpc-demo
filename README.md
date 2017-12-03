@@ -113,6 +113,10 @@ The 95th percentile is 4ms.
 
 TODO: Stackdriver Monitoring from the server.
 
+![stackdriver monitoring](https://i.imgur.com/C3nRvO1.png)
+
 One more thing...
 
 TODO: /tracez
+
+![tracez](https://i.imgur.com/iQiprU5.png)
