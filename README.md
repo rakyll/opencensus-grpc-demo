@@ -19,7 +19,7 @@ want to collect and setup the exporter.
 Let's run the gRPC Java server:
 
 ```
-$ cd java
+$ cd server1
 $ ./startserver.sh
 ```
 
