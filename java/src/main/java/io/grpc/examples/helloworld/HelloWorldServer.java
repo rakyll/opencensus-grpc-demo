@@ -26,6 +26,7 @@ import io.opencensus.exporter.trace.stackdriver.StackdriverExporter;
 import io.opencensus.trace.Tracing;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
 
 /**
@@ -88,6 +89,12 @@ public class HelloWorldServer {
 
     @Override
     public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
+      try {
+        int random = ThreadLocalRandom.current().nextInt(0, 30);
+        Thread.sleep(20 + random); // simulate latency
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
       HelloReply reply = HelloReply.newBuilder().setMessage("Hello " + req.getName()).build();
       responseObserver.onNext(reply);
       responseObserver.onCompleted();
