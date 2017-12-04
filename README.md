@@ -9,8 +9,8 @@ In this demo, we are forking the gRPC hello world server and client.
 We will have a Go gRPC client talking to a gRPC server written in Java.
 
 OpenCensus is vendor agnostic, it can upload data to various
-tracing and metric collection backends. In this demo, we will
-use Prometheus and Stackdriver Monitoring and Stackdriver Tracing.
+tracing and metric collection backends. For this demo, we will
+use both Prometheus and Stackdriver Monitoring, and Stackdriver for tracing.
 
 gRPC Java is supporting OpenCensus instrumentation libraries out
 of the box. The user only need to subscribe to the metrics they

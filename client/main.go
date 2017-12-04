@@ -49,7 +49,7 @@ func main() {
 		}
 	}
 
-	stats.SetReportingPeriod(time.Second)
+	stats.SetReportingPeriod(1 * time.Second)
 	trace.SetDefaultSampler(trace.AlwaysSample()) // for the demo
 
 	// Set up a connection to the server with the OpenCensus
@@ -65,8 +65,9 @@ func main() {
 	defer conn.Close()
 	c := pb.NewGreeterClient(conn)
 
+	ctx := context.Background()
 	for {
-		r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: strings.Repeat("*", rand.Intn(65536))})
+		r, err := c.SayHello(ctx, &pb.HelloRequest{Name: strings.Repeat("*", rand.Intn(1<<16))})
 		if err != nil {
 			log.Printf("Failed to send request: %v", err)
 		} else {
