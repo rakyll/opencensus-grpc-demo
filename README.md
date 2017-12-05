@@ -112,7 +112,12 @@ You can also generate reports and analysis from the collected traces and compare
 
 The 95th percentile is 4ms.
 
-TODO: Stackdriver Monitoring from the server.
+Now back to the gRPC Java server, we can take a look
+at the exported metrics. In this demo, we are using Stackdriver Monitoring
+to export the server metrics to. You can choose any vendor of your choice.
+
+The following dashboard displays the mean and 99th percentile
+round-trip latency collected from the server.
 
 ![stackdriver monitoring](https://i.imgur.com/n3CZzNl.png)
 
