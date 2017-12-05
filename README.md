@@ -20,7 +20,7 @@ want to collect and pass your credentials to your chosen exporter.
 Let's run the gRPC Java server:
 
 ```
-$ cd server1
+$ cd server
 $ ./startserver.sh
 ```
 
