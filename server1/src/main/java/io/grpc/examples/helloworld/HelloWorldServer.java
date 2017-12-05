@@ -16,6 +16,7 @@
 
 package io.grpc.examples.helloworld;
 
+import com.google.api.MonitoredResource;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
@@ -23,15 +24,11 @@ import io.opencensus.common.Duration;
 import io.opencensus.contrib.zpages.ZPageHandlers;
 import io.opencensus.exporter.stats.stackdriver.StackdriverStatsExporter;
 import io.opencensus.exporter.trace.stackdriver.StackdriverExporter;
-import io.opencensus.trace.Tracing;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
 
-/**
- * Server that manages startup/shutdown of a {@code Greeter} server.
- */
+/** Server that manages startup/shutdown of a {@code Greeter} server. */
 public class HelloWorldServer {
   private static final Logger logger = Logger.getLogger(HelloWorldServer.class.getName());
 
@@ -40,20 +37,19 @@ public class HelloWorldServer {
   private void start() throws IOException {
     /* The port on which the server should run */
     int port = 50051;
-    server = ServerBuilder.forPort(port)
-        .addService(new GreeterImpl())
-        .build()
-        .start();
+    server = ServerBuilder.forPort(port).addService(new GreeterImpl()).build().start();
     logger.info("Server started, listening on " + port);
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      @Override
-      public void run() {
-        // Use stderr here since the logger may have been reset by its JVM shutdown hook.
-        System.err.println("*** shutting down gRPC server since JVM is shutting down");
-        HelloWorldServer.this.stop();
-        System.err.println("*** server shut down");
-      }
-    });
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread() {
+              @Override
+              public void run() {
+                // Use stderr here since the logger may have been reset by its JVM shutdown hook.
+                System.err.println("*** shutting down gRPC server since JVM is shutting down");
+                HelloWorldServer.this.stop();
+                System.err.println("*** server shut down");
+              }
+            });
   }
 
   private void stop() {
@@ -62,24 +58,22 @@ public class HelloWorldServer {
     }
   }
 
-  /**
-   * Await termination on the main thread since the grpc library uses daemon threads.
-   */
+  /** Await termination on the main thread since the grpc library uses daemon threads. */
   private void blockUntilShutdown() throws InterruptedException {
     if (server != null) {
       server.awaitTermination();
     }
   }
 
-  /**
-   * Main launches the server from the command line.
-   */
+  /** Main launches the server from the command line. */
   public static void main(String[] args) throws IOException, InterruptedException {
     GrpcViews.registerViews();
     ZPageHandlers.startHttpServerAndRegisterAll(60002);
     StackdriverExporter.createAndRegisterWithProjectId("jbdtalks");
-    StackdriverStatsExporter.createAndRegisterWithProjectId("jbdtalks", Duration.create
-        (10, 0));
+    StackdriverStatsExporter.createAndRegisterWithProjectIdAndMonitoredResource(
+        "jbdtalks",
+        Duration.create(10, 0),
+        MonitoredResource.newBuilder().setType("global").putLabels("job", "java_server").build());
     final HelloWorldServer server = new HelloWorldServer();
     server.start();
     server.blockUntilShutdown();
