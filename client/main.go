@@ -24,16 +24,14 @@ import (
 	pb "go.opencensus.io/examples/grpc/proto"
 )
 
-const address = "localhost:50051"
-
 func main() {
-	pe, se := exporters()
-	stats.RegisterExporter(pe)
-	trace.RegisterExporter(se)
+	prometheusExporter, stackdriverExporter := exporters()
+	stats.RegisterExporter(prometheusExporter)
+	trace.RegisterExporter(stackdriverExporter)
 
 	go func() {
 		// Serve the prometheus metrics endpoint at localhost:9999.
-		http.Handle("/metrics", pe)
+		http.Handle("/metrics", prometheusExporter)
 		log.Fatal(http.ListenAndServe(":9999", nil))
 	}()
 
@@ -55,7 +53,7 @@ func main() {
 	// Set up a connection to the server with the OpenCensus
 	// stats handler to enable stats and tracing.
 	conn, err := grpc.Dial(
-		address,
+		"localhost:50051",
 		grpc.WithStatsHandler(ocgrpc.NewClientStatsHandler()),
 		grpc.WithInsecure(),
 	)
