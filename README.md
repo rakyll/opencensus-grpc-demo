@@ -11,10 +11,11 @@ We will have a Go gRPC client talking to a gRPC server written in Java.
 OpenCensus is vendor agnostic, it can upload data to various
 tracing and metric collection backends. For this demo, we will
 use both Prometheus and Stackdriver Monitoring, and Stackdriver for tracing.
+We could have also used Zipkin for tracing, or any backend with a supported exporter.
 
-gRPC Java is supporting OpenCensus instrumentation libraries out
-of the box. The user only need to subscribe to the metrics they
-want to collect and setup the exporter.
+gRPC Java supports OpenCensus instrumentation libraries out
+of the box. To enable this, you simply need to subscribe to the metrics that you
+want to collect and pass your credentials to your chosen exporter.
 
 Let's run the gRPC Java server:
 
@@ -23,7 +24,7 @@ $ cd server1
 $ ./startserver.sh
 ```
 
-Now the server is listening... Time to start sending some RPCs.
+Now the server is listening ... Time to start sending some RPCs.
 
 Let's take a look at the client first, see client/main.go source code.
 
@@ -117,6 +118,9 @@ TODO: Stackdriver Monitoring from the server.
 
 One more thing...
 
-TODO: /tracez
+Census includes an optional agent that displays diagnostic performance information on the host upon which it is running.
+This is very useful when diagnosing issues related to a particular host or when you need to inspect unfiltered and unsampled data.
+
+We call this this /z agent
 
 ![tracez](https://i.imgur.com/iQiprU5.png)
