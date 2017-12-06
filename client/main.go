@@ -41,13 +41,13 @@ func main() {
 		}
 	}
 
-	stats.SetReportingPeriod(1 * time.Second)
-	trace.SetDefaultSampler(trace.AlwaysSample()) // for the demo
 	go func() {
 		// Serve the prometheus metrics endpoint at localhost:9999.
 		http.Handle("/metrics", prometheusExporter)
 		log.Fatal(http.ListenAndServe(":9999", nil))
 	}()
+
+	stats.SetReportingPeriod(1 * time.Second)
 
 	// Set up a connection to the server with the OpenCensus
 	// stats handler to enable stats and tracing.
@@ -64,12 +64,15 @@ func main() {
 
 	ctx := context.Background()
 	for {
-		r, err := c.SayHello(ctx, &pb.HelloRequest{Name: strings.Repeat("*", rand.Intn(1<<16))})
+		span := trace.NewSpan("main.send", trace.StartSpanOptions{Sampler: trace.AlwaysSample()})
+		time.Sleep(20 * time.Millisecond)
+		r, err := c.SayHello(trace.WithSpan(ctx, span), &pb.HelloRequest{Name: strings.Repeat("*", rand.Intn(1<<16))})
 		if err != nil {
 			log.Printf("Failed to send request: %v", err)
 		} else {
 			log.Printf("Greeting: %s", r.Message)
 		}
+		span.End()
 		time.Sleep(1 * time.Second)
 	}
 }
