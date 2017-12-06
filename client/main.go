@@ -29,12 +29,6 @@ func main() {
 	stats.RegisterExporter(prometheusExporter)
 	trace.RegisterExporter(stackdriverExporter)
 
-	go func() {
-		// Serve the prometheus metrics endpoint at localhost:9999.
-		http.Handle("/metrics", prometheusExporter)
-		log.Fatal(http.ListenAndServe(":9999", nil))
-	}()
-
 	// Subscribe to collect client request count as a distribution
 	// and the count of the errored RPCs.
 	views := []*stats.View{
@@ -49,6 +43,11 @@ func main() {
 
 	stats.SetReportingPeriod(1 * time.Second)
 	trace.SetDefaultSampler(trace.AlwaysSample()) // for the demo
+	go func() {
+		// Serve the prometheus metrics endpoint at localhost:9999.
+		http.Handle("/metrics", prometheusExporter)
+		log.Fatal(http.ListenAndServe(":9999", nil))
+	}()
 
 	// Set up a connection to the server with the OpenCensus
 	// stats handler to enable stats and tracing.
