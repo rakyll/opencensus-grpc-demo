@@ -16,7 +16,6 @@
 
 package io.grpc.examples.helloworld;
 
-import com.google.api.MonitoredResource;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
@@ -70,10 +69,9 @@ public class HelloWorldServer {
     GrpcViews.registerViews();
     ZPageHandlers.startHttpServerAndRegisterAll(60002);
     StackdriverExporter.createAndRegisterWithProjectId("jbdtalks");
-    StackdriverStatsExporter.createAndRegisterWithProjectIdAndMonitoredResource(
+    StackdriverStatsExporter.createAndRegisterWithProjectId(
         "jbdtalks",
-        Duration.create(10, 0),
-        MonitoredResource.newBuilder().setType("global").putLabels("job", "java_server").build());
+        Duration.create(10, 0));
     final HelloWorldServer server = new HelloWorldServer();
     server.start();
     server.blockUntilShutdown();

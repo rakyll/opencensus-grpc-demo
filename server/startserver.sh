@@ -1,1 +1,1 @@
-mvn exec:java -Dexec.mainClass=io.grpc.examples.helloworld.HelloWorldServer
+mvn verify && mvn exec:java -Dexec.mainClass=io.grpc.examples.helloworld.HelloWorldServer

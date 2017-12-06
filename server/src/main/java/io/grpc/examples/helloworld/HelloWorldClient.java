@@ -16,7 +16,6 @@
 
 package io.grpc.examples.helloworld;
 
-import com.google.api.MonitoredResource;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
@@ -81,10 +80,9 @@ public class HelloWorldClient {
     GrpcViews.registerViews();
     ZPageHandlers.startHttpServerAndRegisterAll(60001);
     StackdriverExporter.createAndRegisterWithProjectId("jbdtalks");
-    StackdriverStatsExporter.createAndRegisterWithProjectIdAndMonitoredResource(
+    StackdriverStatsExporter.createAndRegisterWithProjectId(
         "jbdtalks",
-        Duration.create(10, 0),
-        MonitoredResource.newBuilder().setType("global").putLabels("job", "java_client").build());
+        Duration.create(10, 0));
     HelloWorldClient client = new HelloWorldClient("localhost", 50051);
     try {
       /* Access a service running on the local machine on port 50051 */
