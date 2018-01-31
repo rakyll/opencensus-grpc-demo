@@ -18,8 +18,8 @@ import (
 	"go.opencensus.io/stats"
 	"go.opencensus.io/trace"
 
-	"go.opencensus.io/exporter/stats/prometheus"
-	tstackdriver "go.opencensus.io/exporter/trace/stackdriver"
+	"go.opencensus.io/exporter/prometheus"
+	"go.opencensus.io/exporter/stackdriver"
 
 	pb "go.opencensus.io/examples/grpc/proto"
 )
@@ -33,7 +33,9 @@ func main() {
 	// and the count of the errored RPCs.
 	views := []*stats.View{
 		grpcstats.RPCClientRoundTripLatencyView,
+		grpcstats.RPCClientErrorCountView,
 		grpcstats.RPCClientRequestBytesView,
+		grpcstats.RPCClientResponseBytesView,
 	}
 	for _, v := range views {
 		if err := v.Subscribe(); err != nil {
@@ -62,29 +64,26 @@ func main() {
 	defer conn.Close()
 	c := pb.NewGreeterClient(conn)
 
+	// For demoing purposes, always sample.
+	trace.SetDefaultSampler(trace.AlwaysSample())
+
 	ctx := context.Background()
 	for {
-		span := trace.NewSpan("main.send", trace.StartSpanOptions{Sampler: trace.AlwaysSample()})
-		time.Sleep(20 * time.Millisecond)
-		r, err := c.SayHello(trace.WithSpan(ctx, span), &pb.HelloRequest{Name: strings.Repeat("*", rand.Intn(1<<16))})
+		_, err := c.SayHello(ctx, &pb.HelloRequest{Name: strings.Repeat("*", rand.Intn(1<<16))})
 		if err != nil {
 			log.Printf("Failed to send request: %v", err)
-		} else {
-			log.Printf("Greeting: %s", r.Message)
 		}
-		span.End()
-		time.Sleep(1 * time.Second)
 	}
 }
 
-func exporters() (*prometheus.Exporter, *tstackdriver.Exporter) {
+func exporters() (*prometheus.Exporter, *stackdriver.Exporter) {
 	pe, err := prometheus.NewExporter(prometheus.Options{
 		Namespace: "kubecon_demo",
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	se, err := tstackdriver.NewExporter(tstackdriver.Options{
+	se, err := stackdriver.NewExporter(stackdriver.Options{
 		ProjectID: "jbdtalks",
 	})
 	if err != nil {
