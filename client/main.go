@@ -17,6 +17,7 @@ import (
 	"go.opencensus.io/plugin/grpc/grpcstats"
 	"go.opencensus.io/stats"
 	"go.opencensus.io/trace"
+	"go.opencensus.io/zpages"
 
 	"go.opencensus.io/exporter/prometheus"
 	"go.opencensus.io/exporter/stackdriver"
@@ -46,6 +47,8 @@ func main() {
 	go func() {
 		// Serve the prometheus metrics endpoint at localhost:9999.
 		http.Handle("/metrics", prometheusExporter)
+
+		zpages.AddDefaultHTTPHandlers()
 		log.Fatal(http.ListenAndServe(":9999", nil))
 	}()
 
@@ -69,10 +72,13 @@ func main() {
 
 	ctx := context.Background()
 	for {
-		_, err := c.SayHello(ctx, &pb.HelloRequest{Name: strings.Repeat("*", rand.Intn(1<<16))})
+		resp, err := c.SayHello(ctx, &pb.HelloRequest{Name: strings.Repeat("*", rand.Intn(1<<16))})
 		if err != nil {
 			log.Printf("Failed to send request: %v", err)
+		} else {
+			log.Printf("Recieved %v", resp.Message)
 		}
+		time.Sleep(100 * time.Millisecond)
 	}
 }
 
