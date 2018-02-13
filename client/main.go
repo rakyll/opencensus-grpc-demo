@@ -13,9 +13,9 @@ import (
 
 	"google.golang.org/grpc"
 
-	ocgrpc "go.opencensus.io/plugin/grpc"
-	"go.opencensus.io/plugin/grpc/grpcstats"
-	"go.opencensus.io/stats"
+	"go.opencensus.io/plugin/ocgrpc"
+	"go.opencensus.io/plugin/ocgrpc/grpcstats"
+	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
 	"go.opencensus.io/zpages"
 
@@ -27,12 +27,12 @@ import (
 
 func main() {
 	prometheusExporter, stackdriverExporter := exporters()
-	stats.RegisterExporter(prometheusExporter)
+	view.RegisterExporter(prometheusExporter)
 	trace.RegisterExporter(stackdriverExporter)
 
 	// Subscribe to collect client request count as a distribution
 	// and the count of the errored RPCs.
-	views := []*stats.View{
+	views := []*view.View{
 		grpcstats.RPCClientRoundTripLatencyView,
 		grpcstats.RPCClientErrorCountView,
 		grpcstats.RPCClientRequestBytesView,
@@ -52,7 +52,7 @@ func main() {
 		log.Fatal(http.ListenAndServe(":9999", nil))
 	}()
 
-	stats.SetReportingPeriod(1 * time.Second)
+	view.SetReportingPeriod(1 * time.Second)
 
 	// Set up a connection to the server with the OpenCensus
 	// stats handler to enable stats and tracing.
