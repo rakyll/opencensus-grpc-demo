@@ -14,7 +14,6 @@ import (
 	"google.golang.org/grpc"
 
 	"go.opencensus.io/plugin/ocgrpc"
-	"go.opencensus.io/plugin/ocgrpc/grpcstats"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
 	"go.opencensus.io/zpages"
@@ -33,10 +32,8 @@ func main() {
 	// Subscribe to collect client request count as a distribution
 	// and the count of the errored RPCs.
 	views := []*view.View{
-		grpcstats.RPCClientRoundTripLatencyView,
-		grpcstats.RPCClientErrorCountView,
-		grpcstats.RPCClientRequestBytesView,
-		grpcstats.RPCClientResponseBytesView,
+		ocgrpc.ClientRoundTripLatencyView,
+		ocgrpc.ClientErrorCountView,
 	}
 	for _, v := range views {
 		if err := v.Subscribe(); err != nil {
@@ -47,7 +44,6 @@ func main() {
 	go func() {
 		// Serve the prometheus metrics endpoint at localhost:9999.
 		http.Handle("/metrics", prometheusExporter)
-
 		zpages.AddDefaultHTTPHandlers()
 		log.Fatal(http.ListenAndServe(":9999", nil))
 	}()
