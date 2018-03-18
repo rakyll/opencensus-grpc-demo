@@ -123,9 +123,9 @@ round-trip latency collected from the server.
 
 One more thing...
 
-Census includes an optional agent that displays diagnostic performance information on the host upon which it is running.
+OpenCensus includes an optional dashboard that displays diagnostic performance information on the host upon which it is running.
 This is very useful when diagnosing issues related to a particular host or when you need to inspect unfiltered and unsampled data.
 
-We call this this /z agent
-
 ![tracez](https://i.imgur.com/iQiprU5.png)
+
+See http://localhost:9999/debug/tracez for traces.

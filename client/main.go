@@ -44,7 +44,7 @@ func main() {
 	go func() {
 		// Serve the prometheus metrics endpoint at localhost:9999.
 		http.Handle("/metrics", prometheusExporter)
-		zpages.AddDefaultHTTPHandlers()
+		http.Handle("/debug/", http.StripPrefix("/debug", zpages.Handler))
 		log.Fatal(http.ListenAndServe(":9999", nil))
 	}()
 
@@ -54,7 +54,7 @@ func main() {
 	// stats handler to enable stats and tracing.
 	conn, err := grpc.Dial(
 		"localhost:50051",
-		grpc.WithStatsHandler(ocgrpc.NewClientStatsHandler()),
+		grpc.WithStatsHandler(&ocgrpc.ClientHandler{}),
 		grpc.WithInsecure(),
 	)
 	if err != nil {
