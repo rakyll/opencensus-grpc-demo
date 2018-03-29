@@ -13,13 +13,12 @@ import (
 
 	"google.golang.org/grpc"
 
+	"go.opencensus.io/exporter/prometheus"
+	"go.opencensus.io/exporter/stackdriver"
 	"go.opencensus.io/plugin/ocgrpc"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
 	"go.opencensus.io/zpages"
-
-	"go.opencensus.io/exporter/prometheus"
-	"go.opencensus.io/exporter/stackdriver"
 
 	pb "go.opencensus.io/examples/grpc/proto"
 )
@@ -31,20 +30,17 @@ func main() {
 
 	// Subscribe to collect client request count as a distribution
 	// and the count of the errored RPCs.
-	views := []*view.View{
+	if err := view.Subscribe(
 		ocgrpc.ClientRoundTripLatencyView,
 		ocgrpc.ClientErrorCountView,
-	}
-	for _, v := range views {
-		if err := v.Subscribe(); err != nil {
-			log.Fatal(err)
-		}
+	); err != nil {
+		log.Fatal(err)
 	}
 
 	go func() {
 		// Serve the prometheus metrics endpoint at localhost:9999.
 		http.Handle("/metrics", prometheusExporter)
-		http.Handle("/debug/", http.StripPrefix("/debug", zpages.Handler))
+		http.Handle("/debug", http.StripPrefix("/debug/", zpages.Handler))
 		log.Fatal(http.ListenAndServe(":9999", nil))
 	}()
 
@@ -64,7 +60,7 @@ func main() {
 	c := pb.NewGreeterClient(conn)
 
 	// For demoing purposes, always sample.
-	trace.SetDefaultSampler(trace.AlwaysSample())
+	trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 
 	ctx := context.Background()
 	for {
